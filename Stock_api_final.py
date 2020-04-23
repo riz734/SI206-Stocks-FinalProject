@@ -29,6 +29,9 @@ def read_cache(CACHE_FNAME):
     """
     
     try:
+        path = os.path.dirname(os.path.abspath(__file__))
+        os.chdir(path) 
+
         cache_file = open(CACHE_FNAME, 'r', encoding="utf-8") # Try to read the data from the file
         cache_contents = cache_file.read()  # If it's there, get it into a string
         CACHE_DICTION = json.loads(cache_contents) # And then load it into a dictionary
@@ -59,6 +62,8 @@ def create_request_url(symbol):
 def get_weekly_price_data(symbols, CACHE_FNAME):
 
     new_dict = read_cache(CACHE_FNAME)
+
+    count = 0
     #print(new_dict)
     for symbol in symbols:
         
@@ -66,7 +71,7 @@ def get_weekly_price_data(symbols, CACHE_FNAME):
             request_url = create_request_url(symbol)
 
 
-            print("Fetching data for " + symbol)
+            print("Trying to fetch data for " + symbol)
             try:
                 response = urlopen(request_url)
                 data = json.load(response)
@@ -84,10 +89,18 @@ def get_weekly_price_data(symbols, CACHE_FNAME):
 
                     new_dict[symbol] = (float(data["Weekly Time Series"][latest_date]["2. high"]), float(oldest_high_price), float(data["Weekly Time Series"][latest_date]["3. low"]), float(oldest_low_price))
                     write_cache(CACHE_FNAME, new_dict)
+
+                     
+                    print("Successfully fetched data for " + symbol)
+                    count += 1
+
+                    if count == 20:
+                        print("You have stored data from 20 stocks this run. Please run again to continue.")
+                        break
             except:
                 print("None")
         else:
-            print("The data for " + symbol + " has already been stored")
+            print("The data for " + symbol + " has already been stored.")
 
         '''for i in data["Weekly Time Series"].keys():
             if i.split("-")[0] == "2020":
@@ -101,7 +114,7 @@ def get_weekly_price_data(symbols, CACHE_FNAME):
     
             #else:
             #    print(data["Error"])
-    print("Finished loading data for " + str(len(new_dict)) + " stocks")
+    print("Finished loading data for " + str(count) + " new stocks. Total of " + str(len(new_dict)) + " stocks loaded.")
     return new_dict
 
 
@@ -120,21 +133,22 @@ def create_high_database(stock_dict, db_name):
     cur.execute('''
     CREATE TABLE IF NOT EXISTS Stocks_High (Symbol TEXT, LatestWeekPrice TEXT, OldestWeekPrice TEXT)''')
 
+    #used_stocks = read_cache("used_stocks.json")
+
+    #print(used_stocks)
     for i in stock_dict:
-        
+    #    if i not in used_stocks:
+    #        used_stocks.append(i)
+
         cur.execute('SELECT Symbol FROM Stocks_High')
 
         rows = cur.fetchall()
 
-        #print(rows[])
+    
 
-        row_lst = []
-        
-        for i in rows:
-            if i not in row_lst:
-                row_lst.append(i)
 
-        print(row_lst)
+
+        print((row_lst))
 
         if i not in row_lst:
             cur.execute('''INSERT INTO Stocks_High (Symbol, LatestWeekPrice, OldestWeekPrice)
@@ -151,21 +165,26 @@ def create_low_database(stock_dict, db_name):
     cur.execute('''
     CREATE TABLE IF NOT EXISTS Stocks_Low (Symbol TEXT, LatestWeekPrice TEXT, OldestWeekPrice TEXT)''')
 
+    #used_stocks = write_cache("used_stocks.json", new_dict)
+    cur.execute('SELECT Symbol FROM Stocks_Low')
+
+    rows = cur.fetchall()
+
+    print(rows)
+
+    row_lst = []
+        
+    for i in rows:
+        if i not in row_lst:
+            row_lst.append(str(i).split(",")[0].split("(")[1])
+
+    print(row_lst)
+    #print(used_stocks)
     for i in stock_dict:
         
-        cur.execute('SELECT Symbol FROM Stocks_Low')
-
-        rows = cur.fetchall()
-
-        #print(rows[])
-
-        row_lst = []
-        
-        for i in rows:
-            if i not in row_lst:
-                row_lst.append(i)
-
-        print(row_lst)
+        #print(i)
+        #if i not in used_stocks:
+        #    used_stocks.append(i)
 
         if i not in row_lst:
             cur.execute('''INSERT INTO Stocks_Low (Symbol, LatestWeekPrice, OldestWeekPrice)
@@ -174,7 +193,7 @@ def create_low_database(stock_dict, db_name):
     
     cur.close()
 
-def create_symbols():
+'''def create_symbols():
     base_url = 'https://robinhood.com/collections/100-most-popular'
     r = requests.get(base_url)
     soup = BeautifulSoup(r.text, "html.parser")
@@ -186,12 +205,14 @@ def create_symbols():
         symbol = stuff[0].a.div.span.text
         symbols.append(symbol)
     
-    return symbols
+    return symbols'''
 
 #sam = {'AACG': ('0.8500', '1.4892'), 'AAL': ('11.3500', '29.2950'), 'AAME': ('1.9500', '2.0989'), 'AAOI': ('8.6520', '12.5300'), 'AAON': ('47.5000', '50.4200'), 'AKTX': ('1.6300', '1.8000'), 'ALAC': ('10.4700', '10.3500'), 'ALACR': ('0.1800', '0.2200'), 'ALACU': ('10.4900', '10.6500'), 'ALACW': ('0.0300', '0.0800'), 'ALBO': ('19.1000', '26.7100')}
 
 
-'''def create_symbols():
+def create_symbols():
+
+
     text_file = open("nasdaqlisted.txt", "r")
     lines = text_file.readlines()
 
@@ -201,8 +222,8 @@ def create_symbols():
         i = i.split("|")[0]
 
         symbols.append(i)
-    symbols.pop(-1)
-    return symbols'''
+    #symbols.pop(-1)
+    return symbols
 
 #print(create_symbols())
     
@@ -211,7 +232,7 @@ def create_symbols():
 
 #for i in range(10):
 
-print(get_weekly_price_data(create_symbols(), "stock_data.json"))
+#get_weekly_price_data(create_symbols(), "stock_data.json")
 
 #print(read_cache("stock_data.json"))
 
@@ -221,3 +242,23 @@ print(get_weekly_price_data(create_symbols(), "stock_data.json"))
 #get_data_with_caching(create_symbols(), "stock_data")
 
 
+
+stocks_dict = get_weekly_price_data(create_symbols(), "stock_data.json")
+
+create_high_database(stocks_dict, "stocks_high_db.sqlite")
+create_low_database(stocks_dict, "stocks_low_db.sqlite")
+
+#def main():
+
+    
+
+    #get_weekly_price_data(create_symbols(), "stock_data.json")
+    
+    #create_high_database(stocks, "stocks.sqlite")
+        #get_weekly_price_data(create_symbols(), "stock_data.json")
+
+
+#if __name__ == "__main__":
+#    main()
+    
+#    unittest.main(verbosity=2)

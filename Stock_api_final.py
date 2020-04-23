@@ -61,8 +61,11 @@ def create_request_url(symbol):
 
 def get_weekly_price_data(symbols, CACHE_FNAME):
 
+
+
     new_dict = read_cache(CACHE_FNAME)
 
+    #used_lst = []
     count = 0
     #print(new_dict)
     for symbol in symbols:
@@ -97,6 +100,8 @@ def get_weekly_price_data(symbols, CACHE_FNAME):
                     if count == 20:
                         print("You have stored data from 20 stocks this run. Please run again to continue.")
                         break
+               
+
             except:
                 print("None")
         else:
@@ -115,6 +120,7 @@ def get_weekly_price_data(symbols, CACHE_FNAME):
             #else:
             #    print(data["Error"])
     print("Finished loading data for " + str(count) + " new stocks. Total of " + str(len(new_dict)) + " stocks loaded.")
+    
     return new_dict
 
 
@@ -134,23 +140,26 @@ def create_high_database(stock_dict, db_name):
     CREATE TABLE IF NOT EXISTS Stocks_High (Symbol TEXT, LatestWeekPrice TEXT, OldestWeekPrice TEXT)''')
 
     #used_stocks = read_cache("used_stocks.json")
+    cur.execute('SELECT Symbol FROM Stocks_High')
 
+    rows = cur.fetchall()
+
+    rows_lst = []
+    for i in rows:
+        rows_lst.append(i[0])
+    print(rows_lst)
     #print(used_stocks)
     for i in stock_dict:
     #    if i not in used_stocks:
     #        used_stocks.append(i)
 
-        cur.execute('SELECT Symbol FROM Stocks_High')
-
-        rows = cur.fetchall()
-
-    
 
 
 
-        print((row_lst))
 
-        if i not in row_lst:
+        #print((rows))
+
+        if i not in rows_lst:
             cur.execute('''INSERT INTO Stocks_High (Symbol, LatestWeekPrice, OldestWeekPrice)
                     VALUES ( ?, ?, ?)''', (i, stock_dict[i][0], stock_dict[i][1]) ) 
             conn.commit()
@@ -162,31 +171,38 @@ def create_low_database(stock_dict, db_name):
     conn = sqlite3.connect(path+'/'+db_name)
     cur = conn.cursor()
 
+
+
     cur.execute('''
     CREATE TABLE IF NOT EXISTS Stocks_Low (Symbol TEXT, LatestWeekPrice TEXT, OldestWeekPrice TEXT)''')
 
     #used_stocks = write_cache("used_stocks.json", new_dict)
+    #cur.execute('SELECT Symbol FROM Stocks_Low')
+
+    #rows = cur.fetchall()
+
+    #print(rows)
+
+    #row_lst = []
+        
     cur.execute('SELECT Symbol FROM Stocks_Low')
 
     rows = cur.fetchall()
 
-    print(rows)
-
-    row_lst = []
-        
+    rows_lst = []
     for i in rows:
-        if i not in row_lst:
-            row_lst.append(str(i).split(",")[0].split("(")[1])
+        rows_lst.append(i[0])
 
-    print(row_lst)
-    #print(used_stocks)
-    for i in stock_dict:
+    #print(rows_lst)
+    #for i in stock_dict:
         
         #print(i)
         #if i not in used_stocks:
         #    used_stocks.append(i)
 
-        if i not in row_lst:
+        #if i not in row_lst:
+    for i in stock_dict:
+        if i not in rows_lst:
             cur.execute('''INSERT INTO Stocks_Low (Symbol, LatestWeekPrice, OldestWeekPrice)
                     VALUES ( ?, ?, ?)''', (i, stock_dict[i][2], stock_dict[i][3]) ) 
             conn.commit()

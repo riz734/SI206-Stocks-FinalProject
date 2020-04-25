@@ -1,6 +1,8 @@
 import sqlite3
 import os
 import csv
+import matplotlib
+import matplotlib.pyplot as plt
 
 def join_database(db_name):
     path = os.path.dirname(os.path.abspath(__file__))
@@ -31,4 +33,57 @@ def write_csv(net_lst):
         for i in net_lst:
             write_prices.writerow([i[0], i[1], i[2]])
 
-write_csv(calculate_net_price(join_database("stocks_db.sqlite")))
+
+def create_scatterplot_high_low(net_lst):
+
+    
+    for i in net_lst:
+        #color_dict = {i[1]: "green", i[2]: "blue"}
+        x = i[1]
+        y = i[2]
+        plt.scatter(x, y)
+    
+    plt.title("Scatterplot of Net High Prices by Net Low Prices")
+    plt.xlabel("Net High Prices: Latest - First Week of 2020")
+    plt.ylabel("Net Low Prices: Latest - First Week of 2020")
+
+    plt.savefig("scatterplot_high_low.png")
+    plt.show()
+
+def create_scatterplot_symbol_high(net_lst):
+    
+    for i in net_lst:
+        #color_dict = {i[1]: "green", i[2]: "blue"}
+        x = i[0]
+        y = i[1]
+        plt.scatter(x, y)
+    
+    plt.title("Scatterplot of Stock Symbols by Net High Prices")
+    plt.xlabel("Stock Symbols")
+    plt.ylabel("Net High Prices: Latest - First Week of 2020")
+
+    plt.savefig("scatterplot_symbol_high.png")
+
+    plt.show()
+
+def create_scatterplot_symbol_low(net_lst):
+
+    for i in net_lst:
+        #color_dict = {i[1]: "green", i[2]: "blue"}
+        x = i[0]
+        y = i[2]
+        plt.scatter(x, y)
+    plt.title("Scatterplot of Stock Symbols by Net Low Prices")
+    plt.xlabel("Stock Symbols")
+    plt.ylabel("Net Low Prices: Latest - First Week of 2020")
+    
+    plt.savefig("scatterplot_symbol_low.png")
+
+    plt.show()
+
+
+lst = calculate_net_price(join_database("stocks_db.sqlite"))
+write_csv(lst)
+create_scatterplot_high_low(lst)
+create_scatterplot_symbol_high(lst)
+create_scatterplot_symbol_low(lst)

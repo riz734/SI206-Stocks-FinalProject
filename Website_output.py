@@ -5,7 +5,7 @@ import matplotlib
 import matplotlib.pyplot as plt
 
 
-
+# This function retrieves a list containing the symbol and price of each of the stocks from the database
 def stock_lst(db_name, table_name):
     path = os.path.dirname(os.path.abspath(__file__))
     conn = sqlite3.connect(path+'/'+ db_name)
@@ -13,6 +13,7 @@ def stock_lst(db_name, table_name):
 
     stock_price_lst = []
 
+    # Only retrieve the Symbol and Price information from the given table
     cur.execute('SELECT Symbol, Price From ' + table_name)
     rows = cur.fetchall()
     for i in rows:
@@ -26,11 +27,9 @@ def stock_lst(db_name, table_name):
     cur.close()
     return stock_price_lst
 
-
+# This function uses the stocks' price ranges to determine their affordability
 def get_price_ranges(lst):
-
     range_lst = []
-
     for i in lst:
         if i[1] < 15.00:
             range_lst.append((i[0], i[1], "Low-Price"))
@@ -43,9 +42,8 @@ def get_price_ranges(lst):
 
     return range_lst
 
-
+# This function takes the information from a given list and writes it into a csv file
 def write_csv(range_lst):
-
     with open('stock_price_ranges.csv', 'w') as stock_dump:
         write_prices = csv.writer(stock_dump, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
         write_prices.writerow(["Symbol", "Price", "Affordability"])
@@ -53,7 +51,7 @@ def write_csv(range_lst):
         for i in range_lst:
             write_prices.writerow([i[0], i[1], i[2]])
 
-
+# This creates a pie chart using the data of a given list with three elements
 def create_pie_chart(range_lst):
     range_count = {'Low' : 0, 'Medium' : 0, 'Expensive' : 0, 'Uber-Expensive' : 0}
     for i in range_lst:

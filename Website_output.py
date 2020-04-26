@@ -78,7 +78,7 @@ def create_pie_chart(range_lst):
     plt.show()
 
 def main():
-    ranges = get_price_ranges(stock_lst('stocksDB.sqlite', 'Popular_Stocks'))
+    ranges = get_price_ranges(stock_lst('stocks_db.sqlite', 'Popular_Stocks'))
     write_csv(ranges)
     create_pie_chart(ranges)
 

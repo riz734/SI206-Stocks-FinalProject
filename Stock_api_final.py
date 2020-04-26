@@ -131,13 +131,13 @@ def get_weekly_price_data(symbols, CACHE_FNAME):
 #CREATE TABLE IF NOT EXISTS Stocks (Symbol TEXT, LatestWeekPrice TEXT, OldestWeekPrice TEXT)''')
 
 
-def create_high_database(stock_dict, db_name):
+def create_database(stock_dict, db_name):
     path = os.path.dirname(os.path.abspath(__file__))
     conn = sqlite3.connect(path+'/'+db_name)
     cur = conn.cursor()
 
     cur.execute('''
-    CREATE TABLE IF NOT EXISTS Stocks_High (Symbol TEXT, LatestWeekPrice TEXT, OldestWeekPrice TEXT)''')
+    CREATE TABLE IF NOT EXISTS Stocks_High (Symbol TEXT, HighLatestWeekPrice TEXT, HighOldestWeekPrice TEXT)''')
 
     #used_stocks = read_cache("used_stocks.json")
     cur.execute('SELECT Symbol FROM Stocks_High')
@@ -160,21 +160,12 @@ def create_high_database(stock_dict, db_name):
         #print((rows))
 
         if i not in rows_lst:
-            cur.execute('''INSERT INTO Stocks_High (Symbol, LatestWeekPrice, OldestWeekPrice)
+            cur.execute('''INSERT INTO Stocks_High (Symbol, HighLatestWeekPrice, HighOldestWeekPrice)
                     VALUES ( ?, ?, ?)''', (i, stock_dict[i][0], stock_dict[i][1]) ) 
             conn.commit()
     
-    cur.close()
-
-def create_low_database(stock_dict, db_name):
-    path = os.path.dirname(os.path.abspath(__file__))
-    conn = sqlite3.connect(path+'/'+db_name)
-    cur = conn.cursor()
-
-
-
     cur.execute('''
-    CREATE TABLE IF NOT EXISTS Stocks_Low (Symbol TEXT, LatestWeekPrice TEXT, OldestWeekPrice TEXT)''')
+    CREATE TABLE IF NOT EXISTS Stocks_Low (Symbol TEXT, LowLatestWeekPrice TEXT, LowOldestWeekPrice TEXT)''')
 
     #used_stocks = write_cache("used_stocks.json", new_dict)
     #cur.execute('SELECT Symbol FROM Stocks_Low')
@@ -187,11 +178,11 @@ def create_low_database(stock_dict, db_name):
         
     cur.execute('SELECT Symbol FROM Stocks_Low')
 
-    rows = cur.fetchall()
+    rows2 = cur.fetchall()
 
-    rows_lst = []
-    for i in rows:
-        rows_lst.append(i[0])
+    rows_lst2 = []
+    for k in rows2:
+        rows_lst2.append(i[0])
 
     #print(rows_lst)
     #for i in stock_dict:
@@ -201,13 +192,15 @@ def create_low_database(stock_dict, db_name):
         #    used_stocks.append(i)
 
         #if i not in row_lst:
-    for i in stock_dict:
-        if i not in rows_lst:
-            cur.execute('''INSERT INTO Stocks_Low (Symbol, LatestWeekPrice, OldestWeekPrice)
-                    VALUES ( ?, ?, ?)''', (i, stock_dict[i][2], stock_dict[i][3]) ) 
+    for k in stock_dict:
+        if k not in rows_lst2:
+            cur.execute('''INSERT INTO Stocks_Low (Symbol, LowLatestWeekPrice, LowOldestWeekPrice)
+                    VALUES ( ?, ?, ?)''', (k, stock_dict[k][2], stock_dict[k][3]) ) 
             conn.commit()
     
     cur.close()
+
+
 
 '''def create_symbols():
     base_url = 'https://robinhood.com/collections/100-most-popular'
@@ -226,10 +219,12 @@ def create_low_database(stock_dict, db_name):
 #sam = {'AACG': ('0.8500', '1.4892'), 'AAL': ('11.3500', '29.2950'), 'AAME': ('1.9500', '2.0989'), 'AAOI': ('8.6520', '12.5300'), 'AAON': ('47.5000', '50.4200'), 'AKTX': ('1.6300', '1.8000'), 'ALAC': ('10.4700', '10.3500'), 'ALACR': ('0.1800', '0.2200'), 'ALACU': ('10.4900', '10.6500'), 'ALACW': ('0.0300', '0.0800'), 'ALBO': ('19.1000', '26.7100')}
 
 
-def create_symbols():
+def create_symbols(fname):
 
-
-    text_file = open("nasdaqlisted.txt", "r")
+    path = os.path.dirname(os.path.abspath(__file__))
+    os.chdir(path) 
+    
+    text_file = open(fname, "r")
     lines = text_file.readlines()
 
     text_file.close()
@@ -259,10 +254,10 @@ def create_symbols():
 
 
 
-stocks_dict = get_weekly_price_data(create_symbols(), "stock_data.json")
+stocks_dict = get_weekly_price_data(create_symbols("nasdaqlisted.txt"), "stock_data.json")
 
-create_high_database(stocks_dict, "stocks_high_db.sqlite")
-create_low_database(stocks_dict, "stocks_low_db.sqlite")
+create_database(stocks_dict, "stocks_db.sqlite")
+
 
 #def main():
 

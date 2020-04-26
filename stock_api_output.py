@@ -4,6 +4,9 @@ import csv
 import matplotlib
 import matplotlib.pyplot as plt
 
+def removeDuplicates(lst): 
+      
+    return list(set([i for i in lst]))
 def join_database(db_name):
     path = os.path.dirname(os.path.abspath(__file__))
     conn = sqlite3.connect(path+'/'+db_name)
@@ -11,7 +14,7 @@ def join_database(db_name):
 
     cur.execute("SELECT * FROM Stocks_High JOIN Stocks_Low ON Stocks_High.Symbol = Stocks_Low.Symbol")
 
-    return (cur.fetchall())
+    return (removeDuplicates(cur.fetchall()))
 
 #print(join_database("stocks_db.sqlite"))
 
@@ -24,9 +27,11 @@ def calculate_net_price(db_lst):
     return net_price_lst
 
 
-def write_csv(net_lst):
+def write_csv(net_lst, file_name):
+    path = os.path.dirname(os.path.abspath(__file__))
+    os.chdir(path) 
 
-    with open('stock_net_prices.csv', 'w') as stock_file:
+    with open(file_name, 'w') as stock_file:
         write_prices = csv.writer(stock_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
         write_prices.writerow(["Symbol", "Net High Price", "Net Low Price"])
 
@@ -83,7 +88,8 @@ def create_scatterplot_symbol_low(net_lst):
 
 
 lst = calculate_net_price(join_database("stocks_db.sqlite"))
-write_csv(lst)
+#print(len(lst))
+write_csv(lst, "stocks_net_prices.csv")
 create_scatterplot_high_low(lst)
 create_scatterplot_symbol_high(lst)
 create_scatterplot_symbol_low(lst)

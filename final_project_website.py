@@ -63,7 +63,7 @@ def robinhood_scraper(base_url):
 
 def main():
     robinhood_scraper('https://robinhood.com/collections/100-most-popular')
-    setUp_db('stocksDB.sqlite', 'Popular_Stocks')
+    setUp_db('stocks_db.sqlite', 'Popular_Stocks')
 
 if __name__ == "__main__":
     main()

@@ -5,6 +5,7 @@ import requests
 from urllib.request import urlopen, Request
 from bs4 import BeautifulSoup 
 import sqlite3
+import random
 
 #
 # Your name: Shahbab Ahmed    
@@ -147,7 +148,7 @@ def create_database(stock_dict, db_name):
     rows_lst = []
     for i in rows:
         rows_lst.append(i[0])
-    print(rows_lst)
+    #print(rows_lst)
     #print(used_stocks)
     for i in stock_dict:
     #    if i not in used_stocks:
@@ -227,16 +228,18 @@ def create_symbols(fname):
     text_file = open(fname, "r")
     lines = text_file.readlines()
 
+    random.shuffle(lines)
+    
     text_file.close()
+    
     symbols = []
     for i in lines:
+        
         i = i.split("|")[0]
 
         symbols.append(i)
     #symbols.pop(-1)
     return symbols
-
-#print(create_symbols())
     
 #print(create_symbols())
 

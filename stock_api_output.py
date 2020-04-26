@@ -2,7 +2,10 @@ import sqlite3
 import os
 import csv
 import matplotlib
-import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt, numpy as np
+#import numpy as np
+#import matplotlib.ticker as ticker
+
 
 def removeDuplicates(lst): 
       
@@ -41,55 +44,93 @@ def write_csv(net_lst, file_name):
 
 def create_scatterplot_high_low(net_lst):
 
-    
+    x = []
+    y = []
     for i in net_lst:
         #color_dict = {i[1]: "green", i[2]: "blue"}
-        x = i[1]
-        y = i[2]
-        plt.scatter(x, y)
+        x.append(i[1])
+        y.append(i[2])
+        #y = i[1]
+    plt.scatter(x, y)
     
     plt.title("Scatterplot of Net High Prices by Net Low Prices")
-    plt.xlabel("Net High Prices: Latest - First Week of 2020")
-    plt.ylabel("Net Low Prices: Latest - First Week of 2020")
+    plt.xlabel("Net High Prices: Latest - First (Week of 2020)")
+    plt.ylabel("Net Low Prices: Latest - First (Week of 2020)")
 
     plt.savefig("scatterplot_high_low.png")
     plt.show()
 
-def create_scatterplot_symbol_high(net_lst):
+def create_pie_chart(net_lst, low_or_high):
+    range_count = {'Negative' : 0, 'Positive' : 0, 'Equal' : 0}
     
-    for i in net_lst:
-        #color_dict = {i[1]: "green", i[2]: "blue"}
-        x = i[0]
-        y = i[1]
-        plt.scatter(x, y)
-    
-    plt.title("Scatterplot of Stock Symbols by Net High Prices")
-    plt.xlabel("Stock Symbols")
-    plt.ylabel("Net High Prices: Latest - First Week of 2020")
+    if low_or_high.upper() == "HIGH":
+        for i in net_lst:
+            if i[1] < 0:
+                range_count['Negative'] += 1
+            elif i[1] > 0:
+                range_count['Positive'] += 1
+            elif i[1] == 0:
+                range_count['Equal'] += 1
+    elif low_or_high.upper() == "LOW":
+        for i in net_lst:
+            if i[2] < 0:
+                range_count['Negative'] += 1
+            elif i[2] > 0:
+                range_count['Positive'] += 1
+            elif i[2] == 0:
+                range_count['Equal'] += 1
+    else:
+        print("Please choose to either plot High Net Prices by using 'high' or Low Net Prices by using 'low'")
+        return
+        
+    labels = 'Net Negative', 'Net Positive', 'Net Equal'
+    sizes = [range_count['Negative'], range_count['Positive'], range_count['Equal']]
+    #explode = (0.1, 0.1, 0, 0)
 
-    plt.savefig("scatterplot_symbol_high.png")
+    fig1, ax1 = plt.subplots()
+    ax1.pie(sizes,  labels=labels, autopct='%1.1f%%',
+        shadow=True, startangle=90)
+    ax1.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
+    if low_or_high.upper() == "HIGH":
+        plt.title("Pie Chart of Net High Stock Prices (Latest - First Week of 2020)")
+        plt.savefig("stocks_pie_chart_high.png")
+
+    elif low_or_high.upper() == "LOW":
+        plt.title("Pie Chart of Net High Stock Prices (Latest - First Week of 2020)")
+        plt.savefig("stocks_pie_chart_low.png")
+
+
 
     plt.show()
 
-def create_scatterplot_symbol_low(net_lst):
-
+#create_pie_chart(lst)
+'''def create_pie_chart_low(net_lst):
+    range_count = {'Negative' : 0, 'Positive' : 0, 'Equal' : 0}
     for i in net_lst:
-        #color_dict = {i[1]: "green", i[2]: "blue"}
-        x = i[0]
-        y = i[2]
-        plt.scatter(x, y)
-    plt.title("Scatterplot of Stock Symbols by Net Low Prices")
-    plt.xlabel("Stock Symbols")
-    plt.ylabel("Net Low Prices: Latest - First Week of 2020")
-    
-    plt.savefig("scatterplot_symbol_low.png")
+        if i[2] < 0:
+            range_count['Negative'] += 1
+        elif i[2] > 0:
+            range_count['Positive'] += 1
+        elif i[2] == 0:
+            range_count['Equal'] += 1
+        
+    labels = 'Net Negative', 'Net Positive', 'Net Equal'
+    sizes = [range_count['Negative'], range_count['Positive'], range_count['Equal']]
+    #explode = (0.1, 0.1, 0, 0)
 
-    plt.show()
+    fig1, ax1 = plt.subplots()
+    ax1.pie(sizes,  labels=labels, autopct='%1.1f%%',
+        shadow=True, startangle=90)
+    ax1.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
+    plt.title("Pie Chart of Net Low Stock Prices (Latest - First Week of 2020)")
 
+    plt.savefig("stocks_pie_chart_low.png")
+    plt.show()'''
 
 lst = calculate_net_price(join_database("stocks_db.sqlite"))
 #print(len(lst))
-write_csv(lst, "stocks_net_prices.csv")
-create_scatterplot_high_low(lst)
-create_scatterplot_symbol_high(lst)
-create_scatterplot_symbol_low(lst)
+#write_csv(lst, "stocks_net_prices.csv")
+#create_scatterplot_high_low(lst)
+#create_pie_chart(lst, "high")
+#create_pie_chart(lst, "Low")
+create_pie_chart(lst, "med")

@@ -14,14 +14,10 @@ import random
 
 
 # Make sure you create an API key at alphavantage.co/support/#api-key
-# Assign that to the variable API_KEY
-API_KEY = "GC1SJ3IS4Y5SV6PJ"
+# Assign that to the variable API_KEY by passing in that API key
 
-# This contains the NASDAQ-100 (top 103 stocks from the NASDAQ sector, does not include financial stocks) index as a list
-nasdaq_100 = ["MSFT", "AAPL", "AMZN", "GOOG", "GOOGL", "FB", "INTC", "PEP", "CSCO", "NFLX", "CMCSA", "NVDA", "ADBE", "COST", "AMGN", "PYPL", "TSLA", "AVGO", "CHTR", "TXN", "GILD", "QCOM", "SBUX", "MDLZ", "TMUS", 
-"INTU", "VRTX", "FISV", "ADP", "AMD", "BKNG", "BIIB", "ISRG", "REGN", "MU", "CSX", "ATVI", "AMAT", "ILMN", "WBA", "JD", "LRCX", "EXC", "ADI", "ADSK", "XEL", "KHC", "MNST", "ROST", "EA", "CTSH", "EBAY", "BIDU", "MELI", "MAR",
- "ORLY", "NXPI", "WLTW", "KLAC", "LULU", "NTES", "VRSK", "WDAY", "SIRI", "VRSN", "PAYX", "CSGP", "PCAR", "IDXX", "SNPS", "ALXN", "CERN", "XLNX", "ANSS", "CDNS", "ASML", "SGEN", "CTAS", "SPLK", "FAST", "INCY", "MCHP", 
- "DLTR", "CTXS", "CPRT", "SWKS", "CHKP", "BMRN", "CDW", "ALGN", "MXIM", "TTWO", "WDC", "TCOM", "ULTA", "NTAP", "FOXA", "EXPE", "UAL", "LBTYK", "FOX", "AAL", "LBTYA"]
+API_KEY = input("Please Enter a Valid API Key for Alpha Vantage: ")
+
 
 def read_cache(CACHE_FNAME):
     """
@@ -53,7 +49,6 @@ def write_cache(CACHE_FNAME, CACHE_DICT):
 
 # Creates the link for requesting the data by passing in the symbol of the stock
 def create_request_url(symbol):
-
     #if symbol in nasdaq_100:
     return "https://www.alphavantage.co/query?function=TIME_SERIES_WEEKLY&symbol="+ symbol + "&" + "apikey=" + API_KEY
     #else:
@@ -257,6 +252,7 @@ def create_symbols(fname):
 
 
 
+    
 stocks_dict = get_weekly_price_data(create_symbols("nasdaqlisted.txt"), "stock_data.json")
 
 create_database(stocks_dict, "stocks_db.sqlite")

@@ -64,44 +64,43 @@ def get_weekly_price_data(symbols, CACHE_FNAME):
     #used_lst = []
     count = 0
     #print(new_dict)
-    for symbol in symbols:
+    while count < 20:
+        for symbol in symbols:
         
-        if symbol not in new_dict.keys():
-            request_url = create_request_url(symbol)
+            if symbol not in new_dict.keys():
+                request_url = create_request_url(symbol)
 
 
-            print("Trying to fetch data for " + symbol)
-            try:
-                response = urlopen(request_url)
-                data = json.load(response)
-                if "Weekly Time Series" in data.keys():
-                    latest_date = list(data["Weekly Time Series"].keys())[0]
-                    oldest_high_price = ""
-                    oldest_low_price = ""
+                print("Trying to fetch data for " + symbol)
+                try:
+                    response = urlopen(request_url)
+                    data = json.load(response)
+                    if "Weekly Time Series" in data.keys():
+                        latest_date = list(data["Weekly Time Series"].keys())[0]
+                        oldest_high_price = ""
+                        oldest_low_price = ""
 
-                    for i in data["Weekly Time Series"].keys():
-                        if i.split("-")[0] == "2020":
-                            oldest_high_price = data["Weekly Time Series"][i]["2. high"]
-                            oldest_low_price = data["Weekly Time Series"][i]["3. low"]
+                        for i in data["Weekly Time Series"].keys():
+                            if i.split("-")[0] == "2020":
+                                oldest_high_price = data["Weekly Time Series"][i]["2. high"]
+                                oldest_low_price = data["Weekly Time Series"][i]["3. low"]
 
                     
 
-                    new_dict[symbol] = (float(data["Weekly Time Series"][latest_date]["2. high"]), float(oldest_high_price), float(data["Weekly Time Series"][latest_date]["3. low"]), float(oldest_low_price))
-                    write_cache(CACHE_FNAME, new_dict)
+                        new_dict[symbol] = (float(data["Weekly Time Series"][latest_date]["2. high"]), float(oldest_high_price), float(data["Weekly Time Series"][latest_date]["3. low"]), float(oldest_low_price))
+                        write_cache(CACHE_FNAME, new_dict)
 
                      
-                    print("Successfully fetched data for " + symbol)
-                    count += 1
+                        print("Successfully fetched data for " + symbol)
+                        count += 1
 
-                    if count == 20:
-                        print("You have stored data from 20 stocks this run. Please run again to continue.")
-                        break
-               
-
-            except:
-                print("None")
-        else:
-            print("The data for " + symbol + " has already been stored.")
+                        if count == 20:
+                            break
+                
+                except:
+                    print("None")
+            else:
+                print("The data for " + symbol + " has already been stored.")
 
         '''for i in data["Weekly Time Series"].keys():
             if i.split("-")[0] == "2020":
@@ -223,6 +222,7 @@ def create_symbols(fname):
     text_file = open(fname, "r")
     lines = text_file.readlines()
 
+    #Randomizes stocks
     random.shuffle(lines)
     
     text_file.close()

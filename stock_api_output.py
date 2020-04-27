@@ -96,7 +96,7 @@ def create_pie_chart(net_lst, low_or_high):
         plt.savefig("stocks_pie_chart_high.png")
 
     elif low_or_high.upper() == "LOW":
-        plt.title("Pie Chart of Net High Stock Prices (Latest - First Week of 2020)")
+        plt.title("Pie Chart of Net Low Stock Prices (Latest - First Week of 2020)")
         plt.savefig("stocks_pie_chart_low.png")
 
 
@@ -129,7 +129,7 @@ def create_pie_chart(net_lst, low_or_high):
 
 lst = calculate_net_price(join_database("stocks_db.sqlite"))
 #print(len(lst))
-write_csv(lst, "stocks_net_prices.csv")
+write_csv(lst, "stock_net_prices.csv")
 create_scatterplot_high_low(lst)
 create_pie_chart(lst, "high")
 create_pie_chart(lst, "Low")

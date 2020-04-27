@@ -6,10 +6,6 @@ import matplotlib.pyplot as plt, numpy as np
 #import numpy as np
 #import matplotlib.ticker as ticker
 
-
-def removeDuplicates(lst): 
-      
-    return list(set([i for i in lst]))
 def join_database(db_name):
     path = os.path.dirname(os.path.abspath(__file__))
     conn = sqlite3.connect(path+'/'+db_name)
@@ -17,7 +13,7 @@ def join_database(db_name):
 
     cur.execute("SELECT * FROM Stocks_High JOIN Stocks_Low ON Stocks_High.Symbol = Stocks_Low.Symbol")
 
-    return (removeDuplicates(cur.fetchall()))
+    return (cur.fetchall())
 
 #print(join_database("stocks_db.sqlite"))
 
@@ -127,8 +123,9 @@ def create_pie_chart(net_lst, low_or_high):
     plt.savefig("stocks_pie_chart_low.png")
     plt.show()'''
 
+print(len(join_database("stocks_db.sqlite")))
 lst = calculate_net_price(join_database("stocks_db.sqlite"))
-#print(len(lst))
+print(len(lst))
 write_csv(lst, "stock_net_prices.csv")
 create_scatterplot_high_low(lst)
 create_pie_chart(lst, "high")
